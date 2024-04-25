@@ -1,0 +1,1 @@
+ALTER TABLE "conversations" ALTER COLUMN "createdAt" SET DATA TYPE timestamp with time zone;
