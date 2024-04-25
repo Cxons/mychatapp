@@ -233,6 +233,23 @@ const getSpecificChat = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "chat gotten", data: getChat });
 });
 
+const getMessagesForChat = asyncHandler(async (req, res) => {
+  const { chatId } = req.body;
+  if (!chatId) {
+    res.status(403);
+    throw new Error("Sorry cannot get the messages as there is no chat Id");
+  }
+  const theMessages = await db
+    .select()
+    .from(messagesTable)
+    .where(eq(messagesTable.chatId, chatId));
+  console.log("these are the messages", theMessages);
+
+  res
+    .status(200)
+    .json({ message: "all was successful my gee", data: theMessages });
+});
+
 const handleStartGroupChat = asyncHandler(async (req, res) => {
   const { useId, groupId } = req.body;
 });
@@ -242,5 +259,6 @@ module.exports = {
   handleStartGroupChat,
   getAllContacts,
   inviteContacts,
+  getMessagesForChat,
   getSpecificChat,
 };

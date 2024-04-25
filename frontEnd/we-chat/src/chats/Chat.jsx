@@ -10,7 +10,9 @@ function Chat() {
     chatContext.chatInfo.recipientId,
     chatContext.chatInfo.conversationId,
     "the state",
-    chatContext.loading
+    chatContext.loading,
+    "the messages",
+    chatContext.messages
   );
   const [chatText, setChatText] = useState({
     chatText: "",

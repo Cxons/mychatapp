@@ -7,6 +7,7 @@ function FetchContacts({ children }) {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [chatInfo, setChatInfo] = useState();
+  const [messages, setMessages] = useState();
   useEffect(() => {
     const getContacts = async () => {
       try {
@@ -64,11 +65,33 @@ function FetchContacts({ children }) {
                         }),
                       }
                     );
+                    const anotherRes = await fetch(
+                      "http://localhost:4500/chat/getMessagesForChat",
+                      {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                          getSetCookie: true,
+                        },
+                        credentials: "include",
+                        body: JSON.stringify({
+                          chatId: contact.conversationID,
+                        }),
+                      }
+                    );
                     const result = await res.json();
                     console.log("the sent result", result.data[0]);
+                    const allMessages = await anotherRes.json();
+                    console.log("all messages", allMessages);
                     setChatInfo(result.data[0]);
+                    setMessages(allMessages);
                     setLoading(false);
-                    console.log("chat info", chatInfo);
+                    console.log(
+                      "chat info",
+                      chatInfo,
+                      "the messages",
+                      allMessages
+                    );
                   } catch (err) {
                     console.log("this is the error", err);
                   }
@@ -98,7 +121,7 @@ function FetchContacts({ children }) {
         </div>
       </div>
       {loading == false ? (
-        <dataContext.Provider value={{ chatInfo, loading }}>
+        <dataContext.Provider value={{ chatInfo, loading, messages }}>
           {children}
         </dataContext.Provider>
       ) : (
