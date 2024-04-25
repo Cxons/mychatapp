@@ -97,7 +97,7 @@ function FetchContacts({ children }) {
                   }
                 }}
                 key={Math.random()}
-                className="w-[100%]  h-[4.5rem] items-center flex justify-left mt-[5rem]   hover:bg-white hover:bg-opacity-[.3]"
+                className="w-[100%]  h-[4.5rem] items-center flex justify-left mt-[5rem] cursor-pointer  hover:bg-white hover:bg-opacity-[.3]"
               >
                 <div className="w-[3.3rem] h-[2.8rem] bg-white rounded-full ml-[2.7rem]"></div>
                 <div className="w-[100%] h-[2.8rem] flex  flex-col ml-[1rem]">
