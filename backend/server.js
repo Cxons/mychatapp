@@ -80,6 +80,8 @@ io.on("connection", (socket) => {
       });
     io.emit("receivedMessage", {
       message: chatText,
+      sender: userId,
+      receiver: recipientId,
     });
   });
 });

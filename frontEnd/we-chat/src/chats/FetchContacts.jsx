@@ -29,6 +29,7 @@ function FetchContacts({ children }) {
     };
     getContacts();
   }, []);
+
   return (
     <main className="min-h-[100vh]  w-[100vw] bg-blue-100 flex justify-center fixed">
       <div className=" min-h-[100vh] h-[100vh] w-[40%] bg-blue-500 flex flex-col  ">
@@ -92,6 +93,7 @@ function FetchContacts({ children }) {
                       "the messages",
                       allMessages
                     );
+                    console.log("the loading state is this oh", loading);
                   } catch (err) {
                     console.log("this is the error", err);
                   }
