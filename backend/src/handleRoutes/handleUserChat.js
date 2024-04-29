@@ -78,7 +78,8 @@ const handleStartSingleChat = asyncHandler(async (req, res) => {
 
 //function to get a user's contacts and conversation
 const getAllContacts = asyncHandler(async (req, res) => {
-  const { userId } = req.cookies;
+  // const { userId } = req.cookies;
+  const { userId } = req.body;
   console.log("the userId is this", userId);
   if (!userId) {
     res.status(401);
@@ -100,36 +101,48 @@ const getAllContacts = asyncHandler(async (req, res) => {
     throw new Error("Sorry no conversations found");
   }
   // console.log("all conversations", allConversations);
-
+  const chatAndMsg = [];
   //getting the last messages received
   const attachMessage = allConversations.map(async (convo) => {
     const results = await db
       .select()
       .from(messagesTable)
       .where(eq(messagesTable.chatId, convo.conversationId));
-    return {
+    chatAndMsg.push({
       conversationID: convo.conversationId,
       lastMessage: results[results.length - 1],
-    };
+    });
+    // return {
+    //   conversationID: convo.conversationId,
+    //   lastMessage: results[results.length - 1],
+    // };
   });
   const realAttachMessages = await Promise.all(attachMessage);
+  console.log("chatAndMsg", chatAndMsg);
 
+  const totalpkg = [];
   //getting user recipients details e.g name
-  const theNames = allConversations.map(async (convo) => {
+  const theNames = chatAndMsg.map(async (convo) => {
     let userArr;
-    if (convo.creatorId == userId) {
+    if (convo.lastMessage.senderId == userId) {
       const userObj = await db
         .select()
         .from(userTable)
-        .where(eq(userTable.userId, convo.recipientId));
-      // console.log("the user obj", userObj);
+        .where(eq(userTable.userId, convo.lastMessage.receiverId));
+      console.log("the user obj", userObj);
       userArr = userObj;
-    } else if (convo.recipientId == userId) {
+      // totalpkg.push({
+      //   conversationID: convo.conversationID,
+      //   message: convo.lastMessage.messageText,
+      //   name: EachNames[j].name,
+      //   contactId: EachNames[j].userId,
+      // });
+    } else if (convo.lastMessage.receiverId == userId) {
       const userObj = await db
         .select()
         .from(userTable)
-        .where(eq(userTable.userId, convo.creatorId));
-      // console.log("the user obj", userObj);
+        .where(eq(userTable.userId, convo.lastMessage.senderId));
+      console.log("the user obj", userObj);
       userArr = userObj;
     }
     return userArr;
