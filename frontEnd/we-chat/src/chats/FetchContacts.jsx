@@ -9,6 +9,7 @@ function FetchContacts({ children }) {
   const [chatInfo, setChatInfo] = useState();
   const [messages, setMessages] = useState();
   const [childData, setChildData] = useState();
+  const [recipientName, setRecipientName] = useState("");
   const getChildData = (data) => {
     console.log("the data gotten from the child is,how", data);
     setChildData(data);
@@ -92,6 +93,7 @@ function FetchContacts({ children }) {
                     setChatInfo(result.data[0]);
                     setMessages(allMessages);
                     setLoading(false);
+                    setRecipientName(contact.name);
                   } catch (err) {
                     console.log("this is the error", err);
                   }
@@ -122,7 +124,7 @@ function FetchContacts({ children }) {
       </div>
       {loading == false ? (
         <dataContext.Provider
-          value={{ chatInfo, loading, messages, getChildData }}
+          value={{ chatInfo, loading, messages, getChildData, recipientName }}
         >
           {children}
         </dataContext.Provider>

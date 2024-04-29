@@ -88,7 +88,13 @@ function Chat() {
   {
     return chatContext.chatInfo.recipientId != undefined ? (
       <div className="flex justify-center w-[100vw] min-h-[100vh]  bg-white flex-col">
-        <div className="h-[5rem] w-[100%] bg-gray-100 text-[4rem] "></div>;
+        <div className="h-[5rem] w-[100%] bg-gray-100 flex items-center">
+          <div className="w-[3.3rem] h-[3.3rem] bg-blue-400 rounded-full ml-[2.7rem]"></div>
+          <div className="text-[2rem] ml-[2rem]">
+            {chatContext.recipientName}{" "}
+          </div>
+        </div>
+        ;
         <div className=" mt-[4rem]  h-[71vh] w-[100%] overflow-auto no-scrollbar flex flex-col ">
           {messages == undefined ? (
             <div>getting messages...</div>

@@ -102,7 +102,6 @@ const getAllContacts = asyncHandler(async (req, res) => {
   // console.log("all conversations", allConversations);
 
   //getting the last messages received
-
   const attachMessage = allConversations.map(async (convo) => {
     const results = await db
       .select()
@@ -114,17 +113,6 @@ const getAllContacts = asyncHandler(async (req, res) => {
     };
   });
   const realAttachMessages = await Promise.all(attachMessage);
-  // console.log("realAttachMessages", realAttachMessages);
-  // const messages = await db
-  //   .select()
-  //   .from(messagesTable)
-  //   .where(
-  //     or(
-  //       eq(messagesTable.senderId, userId),
-  //       eq(messagesTable.receiverId, userId)
-  //     )
-  //   );
-  // console.log("these are the messages", messages);
 
   //getting user recipients details e.g name
   const theNames = allConversations.map(async (convo) => {
@@ -151,33 +139,6 @@ const getAllContacts = asyncHandler(async (req, res) => {
     return obj[0];
   });
   // console.log("each names is this", EachNames);
-
-  // const convoIds = [];
-  // for (let i = 0; i < messages.length; i++) {
-  //   if (convoIds.includes(messages[i].chatId)) {
-  //     continue;
-  //   }
-  //   convoIds.push(messages[i].chatId);
-  // }
-  // // console.log("the convoIds", convoIds);
-
-  // const idAndLastConvo = [];
-  // for (let i = 0; i < convoIds.length; i++) {
-  //   let msgArray = messages.filter((msg) => {
-  //     return msg.chatId == convoIds[i];
-  //   });
-  //   const lastMessage = msgArray[msgArray.length - 1];
-  //   idAndLastConvo.push({
-  //     conversationId: convoIds[i],
-  //     lastMessage: lastMessage.messageText,
-  //     sentAt: lastMessage.sentAt,
-  //     sender: lastMessage.senderId,
-  //     recipientId: lastMessage.receiverId,
-  //   });
-  // }
-
-  // // console.log("the chat ids", convoIds);
-  // console.log("the real deal", idAndLastConvo);
 
   // sending an array of objects containing the conversation and recipient names
   const completeConvoDetail = [];
