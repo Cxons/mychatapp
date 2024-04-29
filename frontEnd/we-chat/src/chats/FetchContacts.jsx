@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useState, createContext, Children } from "react";
+import React, { useEffect, useState, createContext, useContext } from "react";
 import { Outlet } from "react-router-dom";
 
 export const dataContext = createContext();
@@ -8,6 +8,11 @@ function FetchContacts({ children }) {
   const [loading, setLoading] = useState(true);
   const [chatInfo, setChatInfo] = useState();
   const [messages, setMessages] = useState();
+  const [childData, setChildData] = useState();
+  const getChildData = (data) => {
+    console.log("the data gotten from the child is,how", data);
+    setChildData(data);
+  };
   useEffect(() => {
     const getContacts = async () => {
       try {
@@ -28,7 +33,7 @@ function FetchContacts({ children }) {
       }
     };
     getContacts();
-  }, []);
+  }, [childData]);
 
   return (
     <main className="min-h-[100vh]  w-[100vw] bg-blue-100 flex justify-center fixed">
@@ -87,13 +92,6 @@ function FetchContacts({ children }) {
                     setChatInfo(result.data[0]);
                     setMessages(allMessages);
                     setLoading(false);
-                    console.log(
-                      "chat info",
-                      chatInfo,
-                      "the messages",
-                      allMessages
-                    );
-                    console.log("the loading state is this oh", loading);
                   } catch (err) {
                     console.log("this is the error", err);
                   }
@@ -123,7 +121,9 @@ function FetchContacts({ children }) {
         </div>
       </div>
       {loading == false ? (
-        <dataContext.Provider value={{ chatInfo, loading, messages }}>
+        <dataContext.Provider
+          value={{ chatInfo, loading, messages, getChildData }}
+        >
           {children}
         </dataContext.Provider>
       ) : (
