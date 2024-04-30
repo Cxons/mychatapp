@@ -94,6 +94,7 @@ function FetchContacts({ children }) {
                     setMessages(allMessages);
                     setLoading(false);
                     setRecipientName(contact.name);
+                    console.log("the chat info", chatInfo);
                   } catch (err) {
                     console.log("this is the error", err);
                   }
@@ -110,9 +111,9 @@ function FetchContacts({ children }) {
                     <div>{""}</div>
                   ) : (
                     <div className="text-white text-[0.8rem] ">
-                      {contact.message.messageText}
+                      {contact.message}
                       <div className="text-black font-bold text-right mr-[1.5rem] mt-[-2rem]">
-                        {contact.message.sentAt}
+                        {contact.sentAt}
                       </div>
                     </div>
                   )}

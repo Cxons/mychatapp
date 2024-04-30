@@ -78,8 +78,7 @@ const handleStartSingleChat = asyncHandler(async (req, res) => {
 
 //function to get a user's contacts and conversation
 const getAllContacts = asyncHandler(async (req, res) => {
-  // const { userId } = req.cookies;
-  const { userId } = req.body;
+  const { userId } = req.cookies;
   console.log("the userId is this", userId);
   if (!userId) {
     res.status(401);
@@ -100,75 +99,86 @@ const getAllContacts = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("Sorry no conversations found");
   }
-  // console.log("all conversations", allConversations);
-  const chatAndMsg = [];
+  console.log("all conversations", allConversations);
   //getting the last messages received
   const attachMessage = allConversations.map(async (convo) => {
     const results = await db
       .select()
       .from(messagesTable)
       .where(eq(messagesTable.chatId, convo.conversationId));
-    chatAndMsg.push({
-      conversationID: convo.conversationId,
-      lastMessage: results[results.length - 1],
-    });
-    // return {
+    // chatAndMsg.push({
     //   conversationID: convo.conversationId,
     //   lastMessage: results[results.length - 1],
-    // };
+    // });
+    return {
+      conversationID: convo.conversationId,
+      lastMessage: results[results.length - 1],
+    };
   });
   const realAttachMessages = await Promise.all(attachMessage);
-  console.log("chatAndMsg", chatAndMsg);
+  console.log("the real attached messages", realAttachMessages);
 
-  const totalpkg = [];
   //getting user recipients details e.g name
-  const theNames = chatAndMsg.map(async (convo) => {
-    let userArr;
-    if (convo.lastMessage.senderId == userId) {
-      const userObj = await db
-        .select()
-        .from(userTable)
-        .where(eq(userTable.userId, convo.lastMessage.receiverId));
-      console.log("the user obj", userObj);
-      userArr = userObj;
-      // totalpkg.push({
-      //   conversationID: convo.conversationID,
-      //   message: convo.lastMessage.messageText,
-      //   name: EachNames[j].name,
-      //   contactId: EachNames[j].userId,
-      // });
-    } else if (convo.lastMessage.receiverId == userId) {
-      const userObj = await db
-        .select()
-        .from(userTable)
-        .where(eq(userTable.userId, convo.lastMessage.senderId));
-      console.log("the user obj", userObj);
-      userArr = userObj;
+  const theNames = realAttachMessages.map(async (convo) => {
+    let totalpkg = [];
+    if (convo.lastMessage == undefined) {
+      return "";
+    } else {
+      if (convo.lastMessage.senderId == userId) {
+        const userObj = await db
+          .select()
+          .from(userTable)
+          .where(eq(userTable.userId, convo.lastMessage.receiverId));
+        console.log("the user obj", userObj);
+        totalpkg.push({
+          conversationID: convo.conversationID,
+          message: convo.lastMessage.messageText,
+          name: userObj[0].name,
+          contactId: userObj[0].userId,
+          sentAt: convo.lastMessage.sentAt,
+        });
+      }
+      if (convo.lastMessage.receiverId == userId) {
+        const userObj = await db
+          .select()
+          .from(userTable)
+          .where(eq(userTable.userId, convo.lastMessage.senderId));
+        console.log("the user obj", userObj);
+        totalpkg.push({
+          conversationID: convo.conversationID,
+          message: convo.lastMessage.messageText,
+          name: userObj[0].name,
+          contactId: userObj[0].userId,
+          sentAt: convo.lastMessage.sentAt,
+        });
+      }
     }
-    return userArr;
+    return totalpkg[0];
   });
-  const results = await Promise.all(theNames);
-  const EachNames = results.map((obj) => {
-    return obj[0];
-  });
-  // console.log("each names is this", EachNames);
 
-  // sending an array of objects containing the conversation and recipient names
-  const completeConvoDetail = [];
-  for (let i = 0; i < realAttachMessages.length; i++) {
-    for (let j = 0; j < EachNames.length; j++) {
-      completeConvoDetail.push({
-        conversationID: realAttachMessages[i].conversationID,
-        message: realAttachMessages[i].lastMessage,
-        name: EachNames[j].name,
-        contactId: EachNames[j].userId,
-      });
+  const results = await Promise.all(theNames);
+  console.log("the total package", results);
+
+  let subfinalArr = [];
+  for (let i = 0; i < results.length; i++) {
+    if (results[i] == "" || results[i] == undefined) {
+      continue;
     }
+    subfinalArr.push(results[i]);
   }
-  // console.log("complete convo", completeConvoDetail);
+  subfinalArr.sort((a, b) => Date.parse(b.sentAt) - Date.parse(a.sentAt));
+
+  let finalArr = [];
+  for (let i = 0; i < subfinalArr.length; i++) {
+    if (subfinalArr[i] == null) {
+      continue;
+    }
+    finalArr.push(subfinalArr[i]);
+  }
+  console.log("the results sent is this fool", finalArr);
   res.status(200).json({
     message: "These are your contacts",
-    contacts: completeConvoDetail,
+    contacts: finalArr,
   });
 });
 
