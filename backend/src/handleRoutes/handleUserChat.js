@@ -175,32 +175,107 @@ const getAllContacts = asyncHandler(async (req, res) => {
     }
     finalArr.push(subfinalArr[i]);
   }
-  console.log("the results sent is this fool", finalArr);
+  console.log("the results sent is this", finalArr);
   res.status(200).json({
     message: "These are your contacts",
     contacts: finalArr,
   });
 });
 
-// const handleChatMessages = asyncHandler(async (req, res) => {
-//   const { senderId, recipientId, message } = req.body;
-//   console.log("the sender Id", senderId, "the recipient id", recipientId);
-//   if (!senderId || !recipientId) {
-//     res.status(403);
-//     throw new Error("operation not allowd");
-//   }
-//   const checkSender = await db
-//     .select()
-//     .from(userTable)
-//     .where(
-//       and(eq(userTable.userId, senderId), eq(userTable.userId, recipientId))
-//     );
-//   console.log("the check sender", checkSender);
-//   if (checkSender.length == 0) {
-//     res.status(404);
-//     throw new Error("user not found");
-//   }
-// });
+const handleSearch = asyncHandler(async (req, res) => {
+  const { userId } = req.cookies;
+  const { similar } = req.query;
+  console.log("the similar", similar);
+  console.log("the userId is this", userId);
+  if (!userId) {
+    res.status(401);
+    throw new Error("Not authorized");
+  }
+
+  // fetching all conversations that have the above id
+  const allConversations = await db
+    .select()
+    .from(conversationsTable)
+    .where(
+      or(
+        eq(conversationsTable.creatorId, userId),
+        eq(conversationsTable.recipientId, userId)
+      )
+    );
+  if (allConversations.length == 0) {
+    res.status(404);
+    throw new Error("Sorry no conversations found");
+  }
+  console.log("all conversations is this new one", allConversations);
+  const theNames = allConversations.map(async (convo) => {
+    let totalpkg = [];
+    if (convo.creatorId == userId) {
+      const userObj = await db
+        .select()
+        .from(userTable)
+        .where(eq(userTable.userId, convo.recipientId));
+      console.log("the user obj", userObj);
+      totalpkg.push({
+        conversationID: convo.conversationId,
+        name: userObj[0].name,
+        contactId: userObj[0].userId,
+      });
+    }
+    if (convo.recipientId == userId) {
+      const userObj = await db
+        .select()
+        .from(userTable)
+        .where(eq(userTable.userId, convo.creatorId));
+      console.log("the user obj", userObj);
+      totalpkg.push({
+        conversationID: convo.conversationId,
+        name: userObj[0].name,
+        contactId: userObj[0].userId,
+      });
+    }
+    return totalpkg[0];
+  });
+  const results = await Promise.all(theNames);
+  console.log("the total package", results);
+
+  const semiPkg = results.map(async (convo) => {
+    const msg = await db
+      .select()
+      .from(messagesTable)
+      .where(eq(messagesTable.chatId, convo.conversationID));
+    console.log("the message", msg);
+    return {
+      conversationId: convo.conversationID,
+      name: convo.name,
+      lastMessage: msg[msg.length - 1],
+    };
+  });
+  const semi = await Promise.all(semiPkg);
+  if (similar == "") {
+    return;
+  }
+  const finalArr = semi.filter((item) => item.name.startsWith(similar));
+  console.log("semi", semi);
+  console.log("finalArr", finalArr);
+  res.status(200).json({ message: "the filtered array", data: finalArr });
+});
+
+const getIdName = asyncHandler(async (req, res) => {
+  const { userId } = req.body;
+  checkUser = await db
+    .select()
+    .from(userTable)
+    .where(eq(userTable.userId, userId));
+  console.log("the user ", checkUser);
+  if (checkUser.length == 0) {
+    res.status(404);
+    throw new Error("contact not found");
+  }
+
+  res
+    .status(200)
+    .json({ message: "The userName is this", data: checkUser[0].name });
+});
 
 const getSpecificChat = asyncHandler(async (req, res) => {
   const { chatId } = req.body;
@@ -242,7 +317,9 @@ module.exports = {
   handleStartSingleChat,
   handleStartGroupChat,
   getAllContacts,
+  handleSearch,
   inviteContacts,
   getMessagesForChat,
   getSpecificChat,
+  getIdName,
 };

@@ -66,9 +66,15 @@ function Chat() {
     if (chatText.chatText == "") {
       return;
     } else {
+      let receiver;
+      if (chatContext.chatInfo.recipientId == userId) {
+        receiver = chatContext.chatInfo.creatorId;
+      } else if (chatContext.chatInfo.creatorId == userId) {
+        receiver = chatContext.chatInfo.recipientId;
+      }
       socket.emit("chatInfo", {
         userId: userId,
-        recipientId: chatContext.chatInfo.recipientId,
+        recipientId: receiver,
         chatText: chatText.chatText,
         conversationId: chatContext.chatInfo.conversationId,
         sentAt: date,
@@ -94,7 +100,6 @@ function Chat() {
             {chatContext.recipientName}{" "}
           </div>
         </div>
-        ;
         <div className=" mt-[4rem]  h-[71vh] w-[100%] overflow-auto no-scrollbar flex flex-col ">
           {messages == undefined ? (
             <div>getting messages...</div>

@@ -10,6 +10,8 @@ function FetchContacts({ children }) {
   const [messages, setMessages] = useState();
   const [childData, setChildData] = useState();
   const [recipientName, setRecipientName] = useState("");
+  const [search, setSearch] = useState();
+  const [checkInput, setCheckInput] = useState(false);
   const getChildData = (data) => {
     console.log("the data gotten from the child is,how", data);
     setChildData(data);
@@ -35,6 +37,31 @@ function FetchContacts({ children }) {
     };
     getContacts();
   }, [childData]);
+  async function handleFilterChange(e) {
+    e.preventDefault();
+    if (e.target.value == "") {
+      setCheckInput(false);
+    }
+    if (e.target.value) {
+      setCheckInput(true);
+      const res = await fetch(
+        `http://localhost:4500/chat/filter?similar=${e.target.value}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-type": "application/json",
+            getSetCookie: true,
+          },
+          credentials: "include",
+        }
+      );
+      const response = await res.json();
+      console.log("hey this is the response", response);
+      setSearch(response.data);
+    }
+
+    console.log("the search", search);
+  }
 
   return (
     <main className="min-h-[100vh]  w-[100vw] bg-blue-100 flex justify-center fixed">
@@ -48,81 +75,158 @@ function FetchContacts({ children }) {
         >
           <input
             type="text"
-            placeholder="Search..."
-            className="h-[100%] w-[80%] rounded-md text-center text-2xl bg-blue-200 text-black"
+            onChange={handleFilterChange}
+            placeholder="Search or start a new chat"
+            className="h-[100%] w-[80%] rounded-md text-center text-[1.2rem] bg-blue-200 text-black"
           />
         </form>
-        <div className="w-[100%] h-[100%] overflow-auto no-scrollbar">
-          {contacts.map((contact) => {
-            return (
-              <div
-                onClick={async () => {
-                  try {
-                    const res = await fetch(
-                      "http://localhost:4500/chat/getSingleChat",
-                      {
-                        method: "POST",
-                        credentials: "include",
-                        headers: {
-                          "Content-Type": "application/json",
-                          getSetCookie: "true",
-                        },
-                        body: JSON.stringify({
-                          chatId: contact.conversationID,
-                        }),
+        {checkInput == true ? (
+          <div className="w-[100%] h-[100%] overflow-auto no-scrollbar relative">
+            {search &&
+              search.map((contact) => {
+                return (
+                  <div
+                    onClick={async () => {
+                      try {
+                        const res = await fetch(
+                          "http://localhost:4500/chat/getSingleChat",
+                          {
+                            method: "POST",
+                            credentials: "include",
+                            headers: {
+                              "Content-Type": "application/json",
+                              getSetCookie: "true",
+                            },
+                            body: JSON.stringify({
+                              chatId: contact.conversationId,
+                            }),
+                          }
+                        );
+                        const anotherRes = await fetch(
+                          "http://localhost:4500/chat/getMessagesForChat",
+                          {
+                            method: "POST",
+                            headers: {
+                              "Content-Type": "application/json",
+                              getSetCookie: true,
+                            },
+                            credentials: "include",
+                            body: JSON.stringify({
+                              chatId: contact.conversationID,
+                            }),
+                          }
+                        );
+                        const result = await res.json();
+                        console.log("the sent result", result.data[0]);
+                        const allMessages = await anotherRes.json();
+                        console.log("all messages", allMessages);
+                        setChatInfo(result.data[0]);
+                        setMessages(allMessages);
+                        setLoading(false);
+                        setRecipientName(contact.name);
+                        console.log("the chat info", chatInfo);
+                      } catch (err) {
+                        console.log("this is the error", err);
                       }
-                    );
-                    const anotherRes = await fetch(
-                      "http://localhost:4500/chat/getMessagesForChat",
-                      {
-                        method: "POST",
-                        headers: {
-                          "Content-Type": "application/json",
-                          getSetCookie: true,
-                        },
-                        credentials: "include",
-                        body: JSON.stringify({
-                          chatId: contact.conversationID,
-                        }),
-                      }
-                    );
-                    const result = await res.json();
-                    console.log("the sent result", result.data[0]);
-                    const allMessages = await anotherRes.json();
-                    console.log("all messages", allMessages);
-                    setChatInfo(result.data[0]);
-                    setMessages(allMessages);
-                    setLoading(false);
-                    setRecipientName(contact.name);
-                    console.log("the chat info", chatInfo);
-                  } catch (err) {
-                    console.log("this is the error", err);
-                  }
-                }}
-                key={Math.random()}
-                className="w-[100%]  h-[4.5rem] items-center flex justify-left mt-[5rem] cursor-pointer  hover:bg-white hover:bg-opacity-[.3]"
-              >
-                <div className="w-[3.3rem] h-[2.8rem] bg-white rounded-full ml-[2.7rem]"></div>
-                <div className="w-[100%] h-[2.8rem] flex  flex-col ml-[1rem]">
-                  <div className="text-[1.4rem] text-white cursor-pointer">
-                    {contact.name}
-                  </div>
-                  {contact.message == undefined ? (
-                    <div>{""}</div>
-                  ) : (
-                    <div className="text-white text-[0.8rem] ">
-                      {contact.message}
-                      <div className="text-black font-bold text-right mr-[1.5rem] mt-[-2rem]">
-                        {contact.sentAt}
+                    }}
+                    key={Math.random()}
+                    className="w-[100%]  h-[4.5rem] items-center flex justify-left mt-[5rem] cursor-pointer  hover:bg-white hover:bg-opacity-[.3]"
+                  >
+                    <div className="w-[3.3rem] h-[2.8rem] bg-white rounded-full ml-[2.7rem]"></div>
+                    <div className="w-[100%] h-[2.8rem] flex  flex-col ml-[1rem]">
+                      <div className="text-[1.4rem] text-white cursor-pointer">
+                        {contact.name}
                       </div>
+                      {contact.lastMessage == undefined ? (
+                        <div>{""}</div>
+                      ) : (
+                        <div className="text-white text-[0.8rem] ">
+                          {contact.lastMessage.messageText}
+                          <div className="text-black font-bold text-right mr-[1.5rem] mt-[-2rem]">
+                            {contact.lastMessage.sentAt}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                  </div>
+                );
+              })}
+          </div>
+        ) : (
+          <div className="w-[100%] h-[100%] overflow-auto no-scrollbar relative">
+            {contacts &&
+              contacts.map((contact) => {
+                return (
+                  <div
+                    onClick={async () => {
+                      try {
+                        const res = await fetch(
+                          "http://localhost:4500/chat/getSingleChat",
+                          {
+                            method: "POST",
+                            credentials: "include",
+                            headers: {
+                              "Content-Type": "application/json",
+                              getSetCookie: "true",
+                            },
+                            body: JSON.stringify({
+                              chatId: contact.conversationID,
+                            }),
+                          }
+                        );
+                        const anotherRes = await fetch(
+                          "http://localhost:4500/chat/getMessagesForChat",
+                          {
+                            method: "POST",
+                            headers: {
+                              "Content-Type": "application/json",
+                              getSetCookie: true,
+                            },
+                            credentials: "include",
+                            body: JSON.stringify({
+                              chatId: contact.conversationID,
+                            }),
+                          }
+                        );
+                        const result = await res.json();
+                        console.log("the sent result", result.data[0]);
+                        const allMessages = await anotherRes.json();
+                        console.log("all messages", allMessages);
+                        setChatInfo(result.data[0]);
+                        setMessages(allMessages);
+                        setLoading(false);
+                        setRecipientName(contact.name);
+                        console.log("the chat info", chatInfo);
+                      } catch (err) {
+                        console.log("this is the error", err);
+                      }
+                    }}
+                    key={Math.random()}
+                    className="w-[100%]  h-[4.5rem] items-center flex justify-left mt-[5rem] cursor-pointer  hover:bg-white hover:bg-opacity-[.3]"
+                  >
+                    <div className="w-[3.3rem] h-[2.8rem] bg-white rounded-full ml-[2.7rem]"></div>
+                    <div className="w-[100%] h-[2.8rem] flex  flex-col ml-[1rem]">
+                      <div className="text-[1.4rem] text-white cursor-pointer">
+                        {contact.name}
+                      </div>
+                      {contact.message == undefined ? (
+                        <div>{""}</div>
+                      ) : (
+                        <div className="text-white text-[0.8rem] ">
+                          {contact.message}
+                          <div className="text-black font-bold text-right mr-[1.5rem] mt-[-2rem]">
+                            {contact.sentAt}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        )}
       </div>
+
       {loading == false ? (
         <dataContext.Provider
           value={{ chatInfo, loading, messages, getChildData, recipientName }}

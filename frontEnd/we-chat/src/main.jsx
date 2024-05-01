@@ -8,6 +8,7 @@ import Register from "./authenticate/Register.jsx";
 import Login from "./authenticate/Login.jsx";
 import Chat from "./chats/Chat.jsx";
 import FetchContacts from "./chats/FetchContacts.jsx";
+import Connect from "./chats/Connect.jsx";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -17,6 +18,11 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: `/acceptInvite/:id`,
+    element: <Connect />,
     errorElement: <ErrorPage />,
   },
   {
