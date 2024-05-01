@@ -45,7 +45,7 @@ function Chat() {
       setMessages(res.data);
     };
     fn();
-  }, [chatContext.messages.data, socketMsg]);
+  }, [chatContext, socketMsg]);
 
   function handleChange(e) {
     e.preventDefault();
@@ -53,6 +53,24 @@ function Chat() {
       ...chatText,
       [e.target.name]: e.target.value,
     });
+  }
+  function handleKeyDown(e) {
+    if (e.shiftKey && e.key === "Enter") {
+      // Prevent the default behavior (line break in textarea)
+      e.preventDefault();
+      // Get the current cursor position
+      const cursorPosition = chatRef.current.selectionStart;
+      const currentValue = chatRef.current.value;
+      // Insert a newline character at the cursor position
+      const newValue =
+        currentValue.substring(0, cursorPosition) +
+        "\n" +
+        currentValue.substring(cursorPosition);
+      // Update the textarea value and cursor position
+      chatRef.current.value = newValue;
+      chatRef.current.selectionStart = cursorPosition + 1;
+      chatRef.current.selectionEnd = cursorPosition + 1;
+    }
   }
 
   socket.on("receivedMessage", (msg) => {
@@ -143,10 +161,12 @@ function Chat() {
             type="text"
             name="chatText"
             onChange={handleChange}
+            onKeyDown={handleKeyDown}
             placeholder="Type a Message..."
             className="h-[100%] bg-gray-100 w-[85%] indent-[2rem] text-[1.2rem]"
             id=""
             ref={chatRef}
+            rows={5}
           />
           <button className="text-black w-[15%] h-[100%] font-semibold text-[1.2rem] text-center bg-blue-400">
             Send

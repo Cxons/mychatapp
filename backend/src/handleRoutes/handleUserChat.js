@@ -6,6 +6,7 @@ const {
 } = require("../schemas/schema");
 const { db } = require("../../db/connections/connection");
 const { eq, or, and } = require("drizzle-orm");
+const { DateTime } = require("luxon");
 
 const inviteContacts = asyncHandler(async (req, res) => {
   const { senderId } = req.body;
@@ -166,6 +167,7 @@ const getAllContacts = asyncHandler(async (req, res) => {
     }
     subfinalArr.push(results[i]);
   }
+  console.log("the subfinal array", subfinalArr);
   subfinalArr.sort((a, b) => Date.parse(b.sentAt) - Date.parse(a.sentAt));
 
   let finalArr = [];
@@ -173,7 +175,20 @@ const getAllContacts = asyncHandler(async (req, res) => {
     if (subfinalArr[i] == null) {
       continue;
     }
-    finalArr.push(subfinalArr[i]);
+    let timeSent;
+    const now = DateTime.now();
+    const msgDate = DateTime.fromISO(subfinalArr[i].sentAt);
+    const dayDifference = now.diff(msgDate, "days").as("days");
+    if (dayDifference == 1) {
+      timeSent = "yesterday";
+    } else if (dayDifference > 1) {
+      timeSent = DateTime.fromISO(subfinalArr[i].sentAt).toFormat(
+        "LLLL dd,yyyy"
+      );
+    } else {
+      timeSent = DateTime.fromISO(subfinalArr[i].sentAt).toFormat("hh:mm a");
+    }
+    finalArr.push({ ...subfinalArr[i], sentAt: timeSent });
   }
   console.log("the results sent is this", finalArr);
   res.status(200).json({
@@ -243,11 +258,25 @@ const handleSearch = asyncHandler(async (req, res) => {
       .select()
       .from(messagesTable)
       .where(eq(messagesTable.chatId, convo.conversationID));
+    let sentAt;
+    const now = DateTime.now();
+    const msgDate = DateTime.fromISO(msg[msg.length - 1].sentAt);
+    const dayDifference = now.diff(msgDate, "days").as("days");
     console.log("the message", msg);
+    if (dayDifference == 1) {
+      sentAt = "yesterday";
+    } else if (dayDifference > 1) {
+      sentAt = DateTime.fromISO(msg[msg.length - 1].sentAt).toFormat(
+        "LLLL dd,yyyy"
+      );
+    } else {
+      sentAt = DateTime.fromISO(msg[msg.length - 1].sentAt).toFormat("hh:mm a");
+    }
     return {
       conversationId: convo.conversationID,
       name: convo.name,
       lastMessage: msg[msg.length - 1],
+      sentAt: sentAt,
     };
   });
   const semi = await Promise.all(semiPkg);

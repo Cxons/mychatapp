@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState, createContext, useContext } from "react";
 import { Outlet } from "react-router-dom";
+import { DateTime } from "luxon";
 
 export const dataContext = createContext();
 function FetchContacts({ children }) {
@@ -77,7 +78,7 @@ function FetchContacts({ children }) {
             type="text"
             onChange={handleFilterChange}
             placeholder="Search or start a new chat"
-            className="h-[100%] w-[80%] rounded-md text-center text-[1.2rem] bg-blue-200 text-black"
+            className="h-[100%] w-[80%] rounded-md text-center text-[1.2rem] outline-none bg-blue-200 text-black"
           />
         </form>
         {checkInput == true ? (
@@ -132,7 +133,7 @@ function FetchContacts({ children }) {
                     key={Math.random()}
                     className="w-[100%]  h-[4.5rem] items-center flex justify-left mt-[5rem] cursor-pointer  hover:bg-white hover:bg-opacity-[.3]"
                   >
-                    <div className="w-[3.3rem] h-[2.8rem] bg-white rounded-full ml-[2.7rem]"></div>
+                    <div className="w-[3.7rem] h-[2.9rem] bg-white rounded-full ml-[2.7rem] mt-[.7rem]"></div>
                     <div className="w-[100%] h-[2.8rem] flex  flex-col ml-[1rem]">
                       <div className="text-[1.4rem] text-white cursor-pointer">
                         {contact.name}
@@ -142,8 +143,8 @@ function FetchContacts({ children }) {
                       ) : (
                         <div className="text-white text-[0.8rem] ">
                           {contact.lastMessage.messageText}
-                          <div className="text-black font-bold text-right mr-[1.5rem] mt-[-2rem]">
-                            {contact.lastMessage.sentAt}
+                          <div className="text-black font-bold text-right mr-[1.5rem] mt-[-2.7rem]">
+                            {contact.sentAt}
                           </div>
                         </div>
                       )}
@@ -204,7 +205,7 @@ function FetchContacts({ children }) {
                     key={Math.random()}
                     className="w-[100%]  h-[4.5rem] items-center flex justify-left mt-[5rem] cursor-pointer  hover:bg-white hover:bg-opacity-[.3]"
                   >
-                    <div className="w-[3.3rem] h-[2.8rem] bg-white rounded-full ml-[2.7rem]"></div>
+                    <div className="w-[3.7rem] h-[2.9rem] bg-white rounded-full ml-[2.7rem] mt-[0.7rem]"></div>
                     <div className="w-[100%] h-[2.8rem] flex  flex-col ml-[1rem]">
                       <div className="text-[1.4rem] text-white cursor-pointer">
                         {contact.name}
@@ -214,7 +215,7 @@ function FetchContacts({ children }) {
                       ) : (
                         <div className="text-white text-[0.8rem] ">
                           {contact.message}
-                          <div className="text-black font-bold text-right mr-[1.5rem] mt-[-2rem]">
+                          <div className="text-black font-bold text-right mr-[1.5rem] mt-[-2.7rem]">
                             {contact.sentAt}
                           </div>
                         </div>
