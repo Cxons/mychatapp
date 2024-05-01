@@ -3,6 +3,7 @@ const {
   conversationsTable,
   userTable,
   messagesTable,
+  groupTable,
 } = require("../schemas/schema");
 const { db } = require("../../db/connections/connection");
 const { eq, or, and } = require("drizzle-orm");
@@ -339,7 +340,37 @@ const getMessagesForChat = asyncHandler(async (req, res) => {
 });
 
 const handleStartGroupChat = asyncHandler(async (req, res) => {
-  const { useId, groupId } = req.body;
+  const { creatorId, arrOfParticipantsId, groupName } = req.body;
+  if (!creatorId || !arrOfParticipantsId) {
+    res.status(403);
+    throw new Error("Group chat cannot be created");
+  }
+  const checkValidCreator = await db
+    .select()
+    .from(userTable)
+    .where(eq(userTable.userId, creatorId));
+  if (checkValidCreator.length == 0) {
+    res.status(403);
+    throw new Error("Not a valid user");
+  }
+  const checkParticipants = arrOfParticipantsId.map(async (memberId) => {
+    await db
+      .insert(groupTable)
+      .values({
+        groupName: "BestFriends",
+        creatorId: creatorId,
+        participantId: memberId,
+      })
+      .returning({
+        groupName: groupTable.groupName,
+        creatorId: groupTable.creatorId,
+        participantId: groupTable.participantId,
+      });
+    return "success";
+  });
+  console.log("the check participants", await Promise.all(checkParticipants));
+
+  res.status(200).json({ message: "my man you reached me dawg" });
 });
 
 module.exports = {

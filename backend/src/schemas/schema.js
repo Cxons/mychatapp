@@ -47,10 +47,10 @@ const messagesTable = pgTable("messages", {
 const groupTable = pgTable("group", {
   groupId: uuid("groupId").primaryKey().defaultRandom(),
   groupName: varchar("groupName", { length: 255 }),
-  creator: uuid("creatorId")
+  creatorId: uuid("creatorId")
     .notNull()
     .references(() => userTable.userId),
-  participantId: uuid("participant")
+  participantId: uuid("participantId")
     .references(() => userTable.userId)
     .notNull(),
 });
