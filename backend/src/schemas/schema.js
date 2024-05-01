@@ -39,8 +39,20 @@ const messagesTable = pgTable("messages", {
   chatId: uuid("chatId")
     .notNull()
     .references(() => conversationsTable.conversationId),
+  groupId: uuid("groupId").references(() => groupTable.groupId),
   messageText: varchar("message", { length: 10000 }),
   sentAt: varchar("sentAt", { length: 30 }),
 });
 
-module.exports = { userTable, conversationsTable, messagesTable };
+const groupTable = pgTable("group", {
+  groupId: uuid("groupId").primaryKey().defaultRandom(),
+  groupName: varchar("groupName", { length: 255 }),
+  creator: uuid("creatorId")
+    .notNull()
+    .references(() => userTable.userId),
+  participantId: uuid("participant")
+    .references(() => userTable.userId)
+    .notNull(),
+});
+
+module.exports = { userTable, conversationsTable, messagesTable, groupTable };
