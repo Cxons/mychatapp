@@ -38,7 +38,7 @@ const handlerErr = (err, req, res, next) => {
       break;
     default:
       res.json({
-        message: "All good no errors",
+        message: "An Error happened and i do not know why",
       });
   }
   next();

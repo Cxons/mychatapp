@@ -97,6 +97,7 @@ function Chat() {
         conversationId: chatContext.chatInfo.conversationId,
         sentAt: date,
       });
+      getChildData(sentStatus);
     }
     setTotalMessages([
       ...messages,
@@ -118,7 +119,7 @@ function Chat() {
             {chatContext.recipientName}{" "}
           </div>
         </div>
-        <div className=" mt-[4rem]  h-[71vh] w-[100%] overflow-auto no-scrollbar flex flex-col ">
+        <div className=" mt-[4rem]  h-[70vh] w-[100%] overflow-auto no-scrollbar flex flex-col ">
           {messages == undefined ? (
             <div>getting messages...</div>
           ) : (
@@ -132,6 +133,9 @@ function Chat() {
                   <div className="flex justify-start my-2">
                     <div className="bg-gray-100 text-gray-800 p-2 rounded-lg shadow-md max-w-md">
                       <p>{msg.messageText}.</p>
+                      <p className="text-right text-[.7rem] text-gray-700 font-bold mt-[.5rem]">
+                        {msg.sentAt}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -142,6 +146,9 @@ function Chat() {
                 >
                   <div className="bg-blue-500 text-white p-2 rounded-lg shadow-md max-w-md">
                     <p>{msg.messageText}</p>
+                    <p className="text-right text-[.7rem] text-white font-bold mt-[.5rem]">
+                      {msg.sentAt}
+                    </p>
                   </div>
                 </div>
               );

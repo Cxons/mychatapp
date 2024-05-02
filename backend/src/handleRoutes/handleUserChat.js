@@ -41,14 +41,12 @@ const handleStartSingleChat = asyncHandler(async (req, res) => {
     .from(conversationsTable)
     .where(
       or(
-        eq(conversationsTable.creatorId, senderId),
         and(
           eq(conversationsTable.creatorId, senderId),
-          eq(conversationsTable.recipientId)
+          eq(conversationsTable.recipientId, recipientId)
         ),
-        eq(conversationsTable.recipientId),
         and(
-          eq(conversationsTable.creatorId, senderId),
+          eq(conversationsTable.creatorId, recipientId),
           eq(conversationsTable.recipientId, senderId)
         )
       )
@@ -218,6 +216,7 @@ const handleSearch = asyncHandler(async (req, res) => {
         eq(conversationsTable.recipientId, userId)
       )
     );
+  console.log("allConversations", allConversations);
   if (allConversations.length == 0) {
     res.status(404);
     throw new Error("Sorry no conversations found");
@@ -259,6 +258,13 @@ const handleSearch = asyncHandler(async (req, res) => {
       .select()
       .from(messagesTable)
       .where(eq(messagesTable.chatId, convo.conversationID));
+    console.log("the message", msg);
+    if (msg.length == 0) {
+      return {
+        conversationId: convo.conversationID,
+        name: convo.name,
+      };
+    }
     let sentAt;
     const now = DateTime.now();
     const msgDate = DateTime.fromISO(msg[msg.length - 1].sentAt);
@@ -281,6 +287,7 @@ const handleSearch = asyncHandler(async (req, res) => {
     };
   });
   const semi = await Promise.all(semiPkg);
+  console.log("the semi package", semi);
   if (similar == "") {
     return;
   }
@@ -333,15 +340,44 @@ const getMessagesForChat = asyncHandler(async (req, res) => {
     .from(messagesTable)
     .where(eq(messagesTable.chatId, chatId));
   console.log("these are the messages", theMessages);
-
+  const finalMessages = theMessages.map((msg) => {
+    let sentAt;
+    const now = DateTime.now();
+    const msgDate = DateTime.fromISO(msg.sentAt);
+    const dayDifference = now.diff(msgDate, "days").as("days");
+    if (dayDifference == 1) {
+      sentAt = "yesterday";
+    } else if (dayDifference > 1) {
+      sentAt = DateTime.fromISO(msg.sentAt).toFormat("LLLL dd,yyyy");
+    } else {
+      sentAt = DateTime.fromISO(msg.sentAt).toFormat("hh:mm a");
+    }
+    return {
+      chatId: msg.chatId,
+      groupId: msg.groupId,
+      messageText: msg.messageText,
+      messagesId: msg.messagesId,
+      receiverId: msg.receiverId,
+      senderId: msg.senderId,
+      sentAt: sentAt,
+    };
+  });
   res
     .status(200)
-    .json({ message: "all was successful my gee", data: theMessages });
+    .json({ message: "all was successful my gee", data: finalMessages });
 });
 
 const handleStartGroupChat = asyncHandler(async (req, res) => {
   const { creatorId, arrOfParticipantsId, groupName } = req.body;
-  if (!creatorId || !arrOfParticipantsId) {
+  console.log(
+    "creator",
+    creatorId,
+    "arr",
+    arrOfParticipantsId,
+    "group",
+    groupName
+  );
+  if (!creatorId || arrOfParticipantsId.length == 0 || !groupName) {
     res.status(403);
     throw new Error("Group chat cannot be created");
   }
@@ -353,22 +389,29 @@ const handleStartGroupChat = asyncHandler(async (req, res) => {
     res.status(403);
     throw new Error("Not a valid user");
   }
-  const checkParticipants = arrOfParticipantsId.map(async (memberId) => {
-    await db
-      .insert(groupTable)
-      .values({
-        groupName: "BestFriends",
-        creatorId: creatorId,
-        participantId: memberId,
-      })
-      .returning({
-        groupName: groupTable.groupName,
-        creatorId: groupTable.creatorId,
-        participantId: groupTable.participantId,
-      });
-    return "success";
+  const validMembers = arrOfParticipantsId.map(async (member) => {
+    const eachUser = await db
+      .select()
+      .from(userTable)
+      .where(eq(userTable.userId, member));
+    console.log("each user", eachUser);
+    return eachUser;
   });
-  console.log("the check participants", await Promise.all(checkParticipants));
+  const realResults = await Promise.all(validMembers);
+  console.log("the results", arrOfParticipantsId);
+  await db
+    .insert(groupTable)
+    .values({
+      groupName: groupName,
+      creatorId: creatorId,
+      memberIds: arrOfParticipantsId,
+    })
+    .returning({
+      groupName: groupTable.groupName,
+      creatorId: groupTable.creatorId,
+    });
+
+  console.log("the real results", realResults);
 
   res.status(200).json({ message: "my man you reached me dawg" });
 });

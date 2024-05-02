@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 function Connect() {
   const { id } = useParams();
   const userId = localStorage.getItem("userId");
+  console.log("the user id is this", userId, "and the inviter is", id);
   const [name, setName] = useState();
   useEffect(() => {
     const getName = async () => {

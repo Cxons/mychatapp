@@ -50,7 +50,7 @@ const groupTable = pgTable("group", {
   creatorId: uuid("creatorId")
     .notNull()
     .references(() => userTable.userId),
-  participantId: uuid("participantId")
+  memberIds: uuid("memberIds", { isArray: true })
     .references(() => userTable.userId)
     .notNull(),
 });

@@ -2,6 +2,7 @@
 import React, { useEffect, useState, createContext, useContext } from "react";
 import { Outlet } from "react-router-dom";
 import { DateTime } from "luxon";
+import groupChat from "../assets/groupChatIcon.png";
 
 export const dataContext = createContext();
 function FetchContacts({ children }) {
@@ -67,8 +68,9 @@ function FetchContacts({ children }) {
   return (
     <main className="min-h-[100vh]  w-[100vw] bg-blue-100 flex justify-center fixed">
       <div className=" min-h-[100vh] h-[100vh] w-[40%] bg-blue-500 flex flex-col  ">
-        <div className="flex w-[100%] h-[9%] items-center">
-          <h1 className="text-white text-3xl ml-16 mt-[1.5rem]">WE-CHAT</h1>
+        <div className="flex w-[100%] h-[9%] items-center space-x-[8rem] mt-[1.5rem]">
+          <h1 className="text-white text-3xl ml-16 mt-[1.1rem]">WE-CHAT</h1>
+          <img className="mt-[1.1rem]" src={groupChat} alt="" />
         </div>
         <form
           action=""
@@ -138,12 +140,10 @@ function FetchContacts({ children }) {
                       <div className="text-[1.4rem] text-white cursor-pointer">
                         {contact.name}
                       </div>
-                      {contact.lastMessage == undefined ? (
-                        <div>{""}</div>
-                      ) : (
+                      {contact.lastMessage && (
                         <div className="text-white text-[0.8rem] ">
                           {contact.lastMessage.messageText}
-                          <div className="text-black font-bold text-right mr-[1.5rem] mt-[-2.7rem]">
+                          <div className="text-black font-bold text-right mr-[1.5rem] mt-[-3.5rem]">
                             {contact.sentAt}
                           </div>
                         </div>
@@ -215,7 +215,7 @@ function FetchContacts({ children }) {
                       ) : (
                         <div className="text-white text-[0.8rem] ">
                           {contact.message}
-                          <div className="text-black font-bold text-right mr-[1.5rem] mt-[-2.7rem]">
+                          <div className="text-black font-bold text-right mr-[1.5rem] mt-[-3.5rem]">
                             {contact.sentAt}
                           </div>
                         </div>
