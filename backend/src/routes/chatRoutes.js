@@ -21,6 +21,6 @@ chatRouter.post("/getSingleChat", getSpecificChat);
 chatRouter.post("/getMessagesForChat", getMessagesForChat);
 chatRouter.post("/getName", getIdName);
 chatRouter.get("/filter", handleSearch);
-chatRouter.post("/allContacts", getJustContacts);
+chatRouter.get("/allContacts", getJustContacts);
 
 module.exports = chatRouter;

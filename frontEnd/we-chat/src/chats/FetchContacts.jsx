@@ -66,6 +66,20 @@ function FetchContacts({ children }) {
   }
   function handleGetAllContacts(e) {
     e.preventDefault();
+    const getAllContacts = async () => {
+      const res = await fetch("http://localhost:4500/chat/allContacts", {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json",
+          getSetCookie: true,
+        },
+        credentials: "include",
+      });
+      const response = await res.json();
+      console.log("the image response", response);
+    };
+
+    getAllContacts();
   }
 
   return (
