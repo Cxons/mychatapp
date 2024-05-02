@@ -64,13 +64,21 @@ function FetchContacts({ children }) {
 
     console.log("the search", search);
   }
+  function handleGetAllContacts(e) {
+    e.preventDefault();
+  }
 
   return (
     <main className="min-h-[100vh]  w-[100vw] bg-blue-100 flex justify-center fixed">
       <div className=" min-h-[100vh] h-[100vh] w-[40%] bg-blue-500 flex flex-col  ">
         <div className="flex w-[100%] h-[9%] items-center space-x-[8rem] mt-[1.5rem]">
           <h1 className="text-white text-3xl ml-16 mt-[1.1rem]">WE-CHAT</h1>
-          <img className="mt-[1.1rem]" src={groupChat} alt="" />
+          <img
+            onClick={handleGetAllContacts}
+            className="mt-[1.1rem]"
+            src={groupChat}
+            alt=""
+          />
         </div>
         <form
           action=""

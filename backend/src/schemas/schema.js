@@ -46,13 +46,11 @@ const messagesTable = pgTable("messages", {
 
 const groupTable = pgTable("group", {
   groupId: uuid("groupId").primaryKey().defaultRandom(),
-  groupName: varchar("groupName", { length: 255 }),
+  groupName: varchar("groupName", { length: 255 }).notNull(),
   creatorId: uuid("creatorId")
     .notNull()
     .references(() => userTable.userId),
-  memberIds: uuid("memberIds", { isArray: true })
-    .references(() => userTable.userId)
-    .notNull(),
+  memberIds: varchar("memberIds", { isArray: true }, { length: 255 }).notNull(),
 });
 
 module.exports = { userTable, conversationsTable, messagesTable, groupTable };

@@ -258,7 +258,6 @@ const handleSearch = asyncHandler(async (req, res) => {
       .select()
       .from(messagesTable)
       .where(eq(messagesTable.chatId, convo.conversationID));
-    console.log("the message", msg);
     if (msg.length == 0) {
       return {
         conversationId: convo.conversationID,
@@ -269,7 +268,6 @@ const handleSearch = asyncHandler(async (req, res) => {
     const now = DateTime.now();
     const msgDate = DateTime.fromISO(msg[msg.length - 1].sentAt);
     const dayDifference = now.diff(msgDate, "days").as("days");
-    console.log("the message", msg);
     if (dayDifference == 1) {
       sentAt = "yesterday";
     } else if (dayDifference > 1) {
@@ -327,6 +325,67 @@ const getSpecificChat = asyncHandler(async (req, res) => {
     .where(eq(conversationsTable.conversationId, chatId));
   console.log("the gotten chat", getChat);
   res.status(200).json({ message: "chat gotten", data: getChat });
+});
+
+const getJustContacts = asyncHandler(async (req, res) => {
+  const { userId } = req.cookies;
+  const { similar } = req.query;
+  console.log("the similar", similar);
+  console.log("the userId is this", userId);
+  if (!userId) {
+    res.status(401);
+    throw new Error("Not authorized");
+  }
+
+  // fetching all conversations that have the above id
+  const allConversations = await db
+    .select()
+    .from(conversationsTable)
+    .where(
+      or(
+        eq(conversationsTable.creatorId, userId),
+        eq(conversationsTable.recipientId, userId)
+      )
+    );
+  console.log("allConversations", allConversations);
+  if (allConversations.length == 0) {
+    res.status(404);
+    throw new Error("Sorry no conversations found");
+  }
+  console.log("all conversations is this new one", allConversations);
+  const theNames = allConversations.map(async (convo) => {
+    let totalpkg = [];
+    if (convo.creatorId == userId) {
+      const userObj = await db
+        .select()
+        .from(userTable)
+        .where(eq(userTable.userId, convo.recipientId));
+      console.log("the user obj", userObj);
+      totalpkg.push({
+        conversationID: convo.conversationId,
+        name: userObj[0].name,
+        contactId: userObj[0].userId,
+      });
+    }
+    if (convo.recipientId == userId) {
+      const userObj = await db
+        .select()
+        .from(userTable)
+        .where(eq(userTable.userId, convo.creatorId));
+      console.log("the user obj", userObj);
+      totalpkg.push({
+        conversationID: convo.conversationId,
+        name: userObj[0].name,
+        contactId: userObj[0].userId,
+      });
+    }
+    return totalpkg[0];
+  });
+  const results = await Promise.all(theNames);
+  console.log("the total package", results);
+  res
+    .status(200)
+    .json({ message: "here are all your contacts", data: results });
 });
 
 const getMessagesForChat = asyncHandler(async (req, res) => {
@@ -399,12 +458,14 @@ const handleStartGroupChat = asyncHandler(async (req, res) => {
   });
   const realResults = await Promise.all(validMembers);
   console.log("the results", arrOfParticipantsId);
+  const newMembers = JSON.stringify(arrOfParticipantsId);
+
   await db
     .insert(groupTable)
     .values({
       groupName: groupName,
       creatorId: creatorId,
-      memberIds: arrOfParticipantsId,
+      memberIds: newMembers,
     })
     .returning({
       groupName: groupTable.groupName,
@@ -412,8 +473,7 @@ const handleStartGroupChat = asyncHandler(async (req, res) => {
     });
 
   console.log("the real results", realResults);
-
-  res.status(200).json({ message: "my man you reached me dawg" });
+  res.status(200).json({ message: "groupCreated" });
 });
 
 module.exports = {
@@ -425,4 +485,5 @@ module.exports = {
   getMessagesForChat,
   getSpecificChat,
   getIdName,
+  getJustContacts,
 };

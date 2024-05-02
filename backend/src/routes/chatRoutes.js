@@ -10,6 +10,7 @@ const {
   getMessagesForChat,
   handleSearch,
   getIdName,
+  getJustContacts,
 } = require("../handleRoutes/handleUserChat");
 
 chatRouter.post("/startChat", handleStartSingleChat);
@@ -20,5 +21,6 @@ chatRouter.post("/getSingleChat", getSpecificChat);
 chatRouter.post("/getMessagesForChat", getMessagesForChat);
 chatRouter.post("/getName", getIdName);
 chatRouter.get("/filter", handleSearch);
+chatRouter.post("/allContacts", getJustContacts);
 
 module.exports = chatRouter;
