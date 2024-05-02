@@ -12,7 +12,9 @@ const userRouter = require("./src/routes/userRoutes");
 const chatRouter = require("./src/routes/chatRoutes");
 const errHandler = require("./src/middleware/errorHandler");
 const asyncHandler = require("express-async-handler");
+const Helmet = require("helmet");
 
+app.use(Helmet());
 app.use(cookieParser());
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
