@@ -383,6 +383,9 @@ const getJustContacts = asyncHandler(async (req, res) => {
   });
   const results = await Promise.all(theNames);
   console.log("the total package", results);
+
+  const finalResults = results.sort((a, b) => a.name.localeCompare(b.name));
+  console.log("the final results", finalResults);
   res
     .status(200)
     .json({ message: "here are all your contacts", data: results });

@@ -3,6 +3,7 @@ import React, { useEffect, useState, createContext, useContext } from "react";
 import { Outlet } from "react-router-dom";
 import { DateTime } from "luxon";
 import groupChat from "../assets/groupChatIcon.png";
+import AllContacts from "./AllContacts";
 
 export const dataContext = createContext();
 function FetchContacts({ children }) {
@@ -14,6 +15,7 @@ function FetchContacts({ children }) {
   const [recipientName, setRecipientName] = useState("");
   const [search, setSearch] = useState();
   const [checkInput, setCheckInput] = useState(false);
+  const [imageResponse, setImageResponse] = useState();
   const getChildData = (data) => {
     console.log("the data gotten from the child is,how", data);
     setChildData(data);
@@ -38,7 +40,7 @@ function FetchContacts({ children }) {
       }
     };
     getContacts();
-  }, [childData]);
+  }, [childData, imageResponse]);
   async function handleFilterChange(e) {
     e.preventDefault();
     if (e.target.value == "") {
@@ -77,6 +79,8 @@ function FetchContacts({ children }) {
       });
       const response = await res.json();
       console.log("the image response", response);
+      setImageResponse(response.data);
+      console.log("the image Response", imageResponse);
     };
 
     getAllContacts();
@@ -87,12 +91,13 @@ function FetchContacts({ children }) {
       <div className=" min-h-[100vh] h-[100vh] w-[40%] bg-blue-500 flex flex-col  ">
         <div className="flex w-[100%] h-[9%] items-center space-x-[8rem] mt-[1.5rem]">
           <h1 className="text-white text-3xl ml-16 mt-[1.1rem]">WE-CHAT</h1>
-          <img
+          <div
             onClick={handleGetAllContacts}
-            className="mt-[1.1rem]"
-            src={groupChat}
-            alt=""
-          />
+            className="mt-[1.1rem] h-[3rem] w-[3rem]"
+          >
+            <img className="w-[100%] h-[100%]" src={groupChat} alt="" />
+            <AllContacts contacts={imageResponse} />
+          </div>
         </div>
         <form
           action=""
