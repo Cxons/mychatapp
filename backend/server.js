@@ -16,19 +16,21 @@ const Helmet = require("helmet");
 
 app.use(Helmet());
 app.use(cookieParser());
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(
+  cors({ origin: "https://mychatapp-frontend.vercel.app/", credentials: true })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/user", userRouter);
 app.use("/chat", chatRouter);
 app.use("/", errHandler);
 
-const expressServer = app.listen(4500, () => {
-  console.log(`server listening at port ${4500}`);
+const expressServer = app.listen(port, () => {
+  console.log(`server listening at port ${port}`);
 });
 const io = new Server(expressServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "https://mychatapp-frontend.vercel.app/",
   },
 });
 app.use(
