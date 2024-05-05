@@ -3,7 +3,6 @@ import React, { useEffect, useState, createContext, useContext } from "react";
 import { Outlet } from "react-router-dom";
 import { DateTime } from "luxon";
 import groupChat from "../assets/groupChatIcon.png";
-import AllContacts from "./AllContacts";
 
 export const dataContext = createContext();
 function FetchContacts({ children }) {
@@ -38,6 +37,7 @@ function FetchContacts({ children }) {
       } catch (err) {
         console.log("this is the error", err);
       }
+      console.log("the new image response", imageResponse);
     };
     getContacts();
   }, [childData, imageResponse]);
@@ -80,11 +80,10 @@ function FetchContacts({ children }) {
       const response = await res.json();
       console.log("the image response", response);
       setImageResponse(response.data);
-      console.log("the image Response", imageResponse);
     };
-
     getAllContacts();
   }
+  function handleFilterClick(contactId) {}
 
   return (
     <main className="min-h-[100vh]  w-[100vw] bg-blue-100 flex justify-center fixed">
@@ -96,7 +95,24 @@ function FetchContacts({ children }) {
             className="mt-[1.1rem] h-[3rem] w-[3rem]"
           >
             <img className="w-[100%] h-[100%]" src={groupChat} alt="" />
-            <AllContacts contacts={imageResponse} />
+            <span>Group</span>
+            {imageResponse && (
+              <div className="ml-[8rem]">
+                {imageResponse.map((contact) => {
+                  return (
+                    <div
+                      key={contact.conversationID}
+                      className=" bg-blue-600 space-x-2 flex w-[10rem] h-[3rem] justify-center"
+                    >
+                      <div className="w-[30%] h-[100%] border-[1px]"></div>
+                      <div className="w-[70%] h-[100%] text-justify flex items-center">
+                        {contact.name}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
         <form

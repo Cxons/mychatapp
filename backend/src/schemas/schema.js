@@ -52,5 +52,4 @@ const groupTable = pgTable("group", {
     .references(() => userTable.userId),
   memberIds: varchar("memberIds", { isArray: true }, { length: 255 }).notNull(),
 });
-
 module.exports = { userTable, conversationsTable, messagesTable, groupTable };
