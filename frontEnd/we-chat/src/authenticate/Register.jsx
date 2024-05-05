@@ -11,14 +11,17 @@ function Register() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      const data = await fetch("http://localhost:4500/user/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          getSetCookie: "true",
-        },
-        body: JSON.stringify(formData),
-      });
+      const data = await fetch(
+        "https://mychatapp-lyart.vercel.app/user/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            getSetCookie: "true",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
       const newData = await data.json();
       console.log(newData);
     } catch (err) {
