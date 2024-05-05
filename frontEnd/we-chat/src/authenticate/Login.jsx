@@ -18,15 +18,18 @@ function Login() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      const data = await fetch("http://localhost:4500/user/login", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          getSetCookie: "true",
-        },
-        body: JSON.stringify(formData),
-      });
+      const data = await fetch(
+        "https://mychatapp-lyart.vercel.app/user/login",
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            getSetCookie: "true",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
       const newData = await data.json();
       localStorage.setItem("userName", newData.name);
       localStorage.setItem("userId", newData.id);
