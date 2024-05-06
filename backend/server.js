@@ -17,7 +17,10 @@ const Helmet = require("helmet");
 app.use(Helmet());
 app.use(cookieParser());
 app.use(
-  cors({ origin: "https://mychatapp-frontend.vercel.app/", credentials: true })
+  cors({
+    origin: "https://mychatapp-frontend-fuuv6l95w-chuxons-projects.vercel.app/",
+    credentials: true,
+  })
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -30,7 +33,7 @@ const expressServer = app.listen(port, () => {
 });
 const io = new Server(expressServer, {
   cors: {
-    origin: "https://mychatapp-frontend.vercel.app/",
+    origin: "https://mychatapp-frontend-fuuv6l95w-chuxons-projects.vercel.app/",
   },
 });
 app.use(
