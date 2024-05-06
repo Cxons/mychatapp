@@ -28,8 +28,9 @@ app.use("/user", userRouter);
 app.use("/chat", chatRouter);
 app.use("/", errHandler);
 app.use("/", (req, res) => {
-  res.status(200).json({ message: "you reached me here oh" });
+  res.json({ message: "hey ma" });
 });
+
 const expressServer = app.listen(port, () => {
   console.log(`server listening at port ${port}`);
 });
