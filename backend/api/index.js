@@ -4,13 +4,13 @@ require("dotenv").config();
 const app = express();
 const port = process.env.PORT;
 const cookieParser = require("cookie-parser");
-const { db } = require("./db/connections/connection");
-const { userTable, messagesTable } = require("./src/schemas/schema");
+const { db } = require("../db/connections/connection");
+const { userTable, messagesTable } = require("../src/schemas/schema");
 const { eq, or, and } = require("drizzle-orm");
 const cors = require("cors");
-const userRouter = require("./src/routes/userRoutes");
-const chatRouter = require("./src/routes/chatRoutes");
-const errHandler = require("./src/middleware/errorHandler");
+const userRouter = require("../src/routes/userRoutes");
+const chatRouter = require("../src/routes/chatRoutes");
+const errHandler = require("../src/middleware/errorHandler");
 const asyncHandler = require("express-async-handler");
 const Helmet = require("helmet");
 
