@@ -1,12 +1,14 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const navigate = useNavigate();
   function handleChange(e) {
     e.preventDefault();
     setFormData({
@@ -18,22 +20,24 @@ function Login() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      const data = await fetch(
-        "https://mychatapp-lyart.vercel.app/user/login",
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            getSetCookie: "true",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+      const data = await fetch("http://localhost:4500/user/login", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          getSetCookie: "true",
+        },
+        body: JSON.stringify(formData),
+      });
       const newData = await data.json();
       localStorage.setItem("userName", newData.name);
       localStorage.setItem("userId", newData.id);
       console.log(newData);
+      if (newData.status == 200) {
+        return navigate("/chat/fetchContacts/chatUi", { replace: true });
+      } else {
+        alert(`${newData.message}`);
+      }
     } catch (err) {
       console.log("this is the error", err);
     }

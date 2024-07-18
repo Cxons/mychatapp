@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -8,22 +9,25 @@ function Register() {
     email: "",
     password: "",
   });
+  const navigate = useNavigate();
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      const data = await fetch(
-        "https://mychatapp-lyart.vercel.app/user/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            getSetCookie: "true",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+      const data = await fetch("http://localhost:4500/user/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          getSetCookie: "true",
+        },
+        body: JSON.stringify(formData),
+      });
       const newData = await data.json();
       console.log(newData);
+      if (newData.status == 200) {
+        return navigate("/chat/fetchContacts/chatUi", { replace: true });
+      } else {
+        alert(`${newData.message}`);
+      }
     } catch (err) {
       console.log("this is the error", err);
     }
@@ -48,7 +52,7 @@ function Register() {
             className="flex flex-col h-[100%] w-[80%] bg-white ml-[5rem] mt-[0rem] rounded-[0.5rem]"
           >
             <div className="my-[1rem] ml-[2.5rem] mt-[3rem] text-[2rem] italic font-serif bg-clip-text bg-gradient-to-tr from-amber-300 via-orange-500 to-white text-transparent font-bold">
-              XONS
+              WE-CHAT
             </div>
 
             <label className="text-left ml-[2.5rem] mt-[1rem]" htmlFor="text">

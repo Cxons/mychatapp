@@ -17,59 +17,62 @@ const handleRegister = asynchandler(async (req, res) => {
   if (!userName || !email || !password) {
     res.status(401);
     throw new Error("No optional field");
-  }
-  const existingEmail = await db
-    .select({ email: userTable.email })
-    .from(userTable)
-    .where(eq(userTable.email, email));
+  } else {
+    const existingEmail = await db
+      .select({ email: userTable.email })
+      .from(userTable)
+      .where(eq(userTable.email, email));
 
-  if (existingEmail.length != 0) {
-    res.status(403);
-    throw new Error("Email already exists");
-  }
-  const hashedPassword = bcrypt.hashSync(password, SALT);
-  await db.insert(userTable).values({
-    name: userName,
-    email: email,
-    password: hashedPassword,
-  });
-  const verificationCode = crypto.randomBytes(7).toString("hex");
-  const transporter = nodeMailer.createTransport({
-    service: "gmail",
-    auth: {
-      type: "OAuth2",
-      user: process.env.MY_EMAIL,
-      pass: process.env.MY_PASS,
-      clientId: process.env.CLIENT_ID,
-      clientSecret: process.env.CLIENT_SECRET,
-      refreshToken: process.env.REFRESH_TOKEN,
-    },
-    tls: {
-      rejectUnauthorized: false,
-    },
-  });
-  const mailOptions = {
-    from: process.env.MY_EMAIL,
-    to: email,
-    subject: "Verify your email",
-    text: `Your verification Code is ${verificationCode}`,
-  };
-  console.log("the verification code", verificationCode);
-  transporter.sendMail(mailOptions, (err, data) => {
-    if (err) {
-      console.log(err);
-      res.status(401);
-      throw new Error("error sending the email");
+    if (existingEmail.length != 0) {
+      res.status(403);
+      throw new Error("Email already exists");
     }
-    console.log(data, "the email was has been sent successfully");
-  });
-  await db
-    .update(userTable)
-    .set({
-      verificationCode: verificationCode,
-    })
-    .where(eq(userTable.email, email));
-  res.status(200).json({ message: "user registerd successfuly" });
+    const hashedPassword = bcrypt.hashSync(password, SALT);
+    await db.insert(userTable).values({
+      name: userName,
+      email: email,
+      password: hashedPassword,
+    });
+    const verificationCode = crypto.randomBytes(7).toString("hex");
+    const transporter = nodeMailer.createTransport({
+      service: "gmail",
+      auth: {
+        type: "OAuth2",
+        user: process.env.MY_EMAIL,
+        pass: process.env.MY_PASS,
+        clientId: process.env.CLIENT_ID,
+        clientSecret: process.env.CLIENT_SECRET,
+        refreshToken: process.env.REFRESH_TOKEN,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
+    const mailOptions = {
+      from: process.env.MY_EMAIL,
+      to: email,
+      subject: "Verify your email",
+      text: `Your verification Code is ${verificationCode}`,
+    };
+    console.log("the verification code", verificationCode);
+    // transporter.sendMail(mailOptions, (err, data) => {
+    //   if (err) {
+    //     console.log(err);
+    //     res.status(401);
+    //     throw new Error("error sending the email");
+    //   }
+    //   console.log(data, "the email was has been sent successfully");
+    // });
+    await db
+      .update(userTable)
+      .set({
+        verificationCode: verificationCode,
+      })
+      .where(eq(userTable.email, email));
+    res
+      .status(200)
+      .json({ message: "user registered successfully", status: 200 });
+  }
 });
 
 //function to confirm the user verification code input
@@ -122,6 +125,7 @@ const handleLogin = asynchandler(async (req, res) => {
     accessToken: accessToken,
     name: existingEmail[0].name,
     id: existingEmail[0].userId,
+    status: 200,
   });
 });
 

@@ -18,7 +18,7 @@ app.use(Helmet());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "https://mychatapp-frontend-b9dkdslc0-chuxons-projects.vercel.app/",
+    origin: "http://localhost:5173",
     credentials: true,
   })
 );
@@ -27,16 +27,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/user", userRouter);
 app.use("/chat", chatRouter);
 app.use("/", errHandler);
-app.use("/", (req, res) => {
-  res.json({ message: "hey ma" });
-});
 
 const expressServer = app.listen(port, () => {
   console.log(`server listening at port ${port}`);
 });
 const io = new Server(expressServer, {
   cors: {
-    origin: "https://mychatapp-frontend-b9dkdslc0-chuxons-projects.vercel.app/",
+    origin: "http://localhost:5173",
   },
 });
 app.use(
